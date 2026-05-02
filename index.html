@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Scholarship Eligibility Checker — Scholarise</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Background grid decoration -->
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-blob b1" aria-hidden="true"></div>
+  <div class="bg-blob b2" aria-hidden="true"></div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="https://scholarise.in" class="logo" target="_blank" rel="noopener">
+        <span class="logo-mark">S</span>
+        <span class="logo-text">Scholarise</span>
+      </a>
+      <nav class="header-nav">
+        <a href="https://scholarise.in" target="_blank" rel="noopener">Browse All</a>
+        <a href="#checker" class="btn-ghost-sm">Check Eligibility</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero" id="top">
+    <div class="container hero-inner">
+      <div class="hero-tag">🎓 Free Scholarship Finder</div>
+      <h1 class="hero-title">
+        Find Scholarships<br/>
+        <em>Made for You</em>
+      </h1>
+      <p class="hero-sub">Answer a few quick questions and we'll instantly match you with scholarships you're eligible for — sourced daily from government portals &amp; trusted sources.</p>
+      <div class="hero-stats">
+        <div class="stat"><span id="stat-count" class="stat-num">—</span><span class="stat-lbl">Scholarships</span></div>
+        <div class="stat-div"></div>
+        <div class="stat"><span class="stat-num">Daily</span><span class="stat-lbl">Updated</span></div>
+        <div class="stat-div"></div>
+        <div class="stat"><span class="stat-num">100%</span><span class="stat-lbl">Free</span></div>
+      </div>
+      <a href="#checker" class="btn-primary">Check My Eligibility ↓</a>
+    </div>
+  </section>
+
+  <!-- Eligibility Form -->
+  <section class="checker-section" id="checker">
+    <div class="container">
+      <div class="section-label">Step 1 of 1</div>
+      <h2 class="section-title">Your Profile</h2>
+      <p class="section-sub">All fields help us match you more accurately. Fields marked * are required.</p>
+
+      <div class="form-card">
+        <div id="form-error" class="form-error hidden" role="alert"></div>
+
+        <form id="eligibility-form" novalidate>
+
+          <!-- Row 1 -->
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="dob">Date of Birth <span class="req">*</span></label>
+              <input type="date" id="dob" name="dob" required max="" />
+              <span class="hint">We calculate your age automatically</span>
+            </div>
+            <div class="form-group">
+              <label for="gender">Gender <span class="req">*</span></label>
+              <select id="gender" name="gender" required>
+                <option value="">Select gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="transgender">Transgender</option>
+                <option value="other">Prefer not to say</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Row 2 -->
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="category">Category / Caste <span class="req">*</span></label>
+              <select id="category" name="category" required>
+                <option value="">Select category</option>
+                <option value="general">General</option>
+                <option value="obc">OBC (Other Backward Class)</option>
+                <option value="sc">SC (Scheduled Caste)</option>
+                <option value="st">ST (Scheduled Tribe)</option>
+                <option value="ews">EWS (Economically Weaker Section)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="state">State of Domicile <span class="req">*</span></label>
+              <select id="state" name="state" required>
+                <option value="">Select state</option>
+                <option>Andhra Pradesh</option><option>Arunachal Pradesh</option>
+                <option>Assam</option><option>Bihar</option><option>Chhattisgarh</option>
+                <option>Goa</option><option>Gujarat</option><option>Haryana</option>
+                <option>Himachal Pradesh</option><option>Jharkhand</option>
+                <option>Karnataka</option><option>Kerala</option>
+                <option>Madhya Pradesh</option><option>Maharashtra</option>
+                <option>Manipur</option><option>Meghalaya</option><option>Mizoram</option>
+                <option>Nagaland</option><option>Odisha</option><option>Punjab</option>
+                <option>Rajasthan</option><option>Sikkim</option><option>Tamil Nadu</option>
+                <option>Telangana</option><option>Tripura</option>
+                <option>Uttar Pradesh</option><option>Uttarakhand</option>
+                <option>West Bengal</option>
+                <option>Andaman and Nicobar Islands</option>
+                <option>Chandigarh</option><option>Delhi</option>
+                <option>Jammu and Kashmir</option><option>Ladakh</option>
+                <option>Lakshadweep</option>
+                <option>Puducherry</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Row 3 -->
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="qualification">Current Qualification <span class="req">*</span></label>
+              <select id="qualification" name="qualification" required>
+                <option value="">Select qualification</option>
+                <option value="class9">Class 9</option>
+                <option value="class10">Class 10 (Matriculate)</option>
+                <option value="class11">Class 11</option>
+                <option value="class12">Class 12 (Intermediate)</option>
+                <option value="diploma">Diploma / ITI</option>
+                <option value="undergraduate">Undergraduate (UG)</option>
+                <option value="postgraduate">Postgraduate (PG)</option>
+                <option value="phd">PhD / Research</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="income">Annual Family Income (₹) <span class="req">*</span></label>
+              <select id="income" name="income" required>
+                <option value="">Select range</option>
+                <option value="100000">Up to ₹1,00,000</option>
+                <option value="250000">Up to ₹2,50,000</option>
+                <option value="500000">Up to ₹5,00,000</option>
+                <option value="800000">Up to ₹8,00,000</option>
+                <option value="1200000">Up to ₹12,00,000</option>
+                <option value="9999999">Above ₹12,00,000</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Row 4 -->
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="marks">Marks / Percentage / CGPA</label>
+              <input type="number" id="marks" name="marks" min="0" max="100" step="0.01" placeholder="e.g. 78.5 or 8.2" />
+              <span class="hint">Enter percentage (0–100) or CGPA out of 10</span>
+            </div>
+            <div class="form-group">
+              <label for="disability">Person with Disability?</label>
+              <select id="disability" name="disability">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-footer">
+            <button type="submit" class="btn-primary btn-submit" id="submit-btn">
+              <span class="btn-text">Find My Scholarships</span>
+              <span class="btn-icon">→</span>
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Results Section -->
+  <section class="results-section hidden" id="results-section">
+    <div class="container">
+      <div class="results-header">
+        <div>
+          <div class="section-label">Your Matches</div>
+          <h2 class="section-title" id="results-title">Eligible Scholarships</h2>
+        </div>
+        <button class="btn-ghost" id="reset-btn">← Edit Profile</button>
+      </div>
+
+      <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="central">Central Govt.</button>
+        <button class="filter-btn" data-filter="state">State Govt.</button>
+        <button class="filter-btn" data-filter="private">Private</button>
+      </div>
+
+      <div id="results-grid" class="results-grid"></div>
+
+      <div id="no-results" class="no-results hidden">
+        <div class="no-results-icon">🔍</div>
+        <h3>No exact matches found</h3>
+        <p>Try relaxing some filters, or <a href="https://scholarise.in" target="_blank">browse all scholarships</a> on Scholarise.in</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>Data sourced from <a href="https://scholarise.in" target="_blank">Scholarise.in</a>, NSP, and trusted portals. Updated daily.</p>
+      <p class="footer-small">This tool is for informational purposes only. Always verify on the official scholarship portal before applying.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

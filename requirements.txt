@@ -1,0 +1,14 @@
+# Scholarship Scraper — Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# Core HTTP & HTML parsing
+requests>=2.31.0
+beautifulsoup4>=4.12.3
+lxml>=5.2.0          # Faster HTML parser for BeautifulSoup
+
+# Optional: JavaScript-rendered pages (uncomment if needed)
+# selenium>=4.21.0
+# webdriver-manager>=4.0.1   # Auto-manages chromedriver version
+
+# Utilities
+python-dateutil>=2.9.0   # Flexible date parsing

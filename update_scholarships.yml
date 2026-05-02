@@ -1,0 +1,203 @@
+# .github/workflows/update_scholarships.yml
+# ═══════════════════════════════════════════════════════════════
+#  Scholarship Data Auto-Updater
+#  Runs daily at midnight IST (18:30 UTC) and on manual trigger.
+#  Scrapes scholarship sources → updates scholarships.json →
+#  commits & pushes back to main ONLY if data changed.
+# ═══════════════════════════════════════════════════════════════
+
+name: Update Scholarship Data
+
+on:
+  # ── Scheduled: daily at 00:30 IST (18:30 UTC previous day) ──
+  schedule:
+    - cron: "30 18 * * *"
+
+  # ── Manual trigger from GitHub Actions tab ──────────────────
+  workflow_dispatch:
+    inputs:
+      debug_mode:
+        description: "Run scraper in debug mode?"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+  # ── Also run on push to main (for testing scraper changes) ───
+  push:
+    branches:
+      - main
+    paths:
+      - "scraper.py"
+      - "requirements.txt"
+      - ".github/workflows/update_scholarships.yml"
+
+# ── Prevent concurrent runs ────────────────────────────────────
+concurrency:
+  group: update-scholarships
+  cancel-in-progress: false
+
+jobs:
+  scrape-and-update:
+    name: Scrape & Update scholarships.json
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    permissions:
+      contents: write   # Needed to push the updated JSON file
+
+    steps:
+      # ── 1. Checkout repository ─────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── 2. Set up Python ───────────────────────────────────
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements.txt
+
+      # ── 3. Install Python dependencies ────────────────────
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          echo "Dependencies installed successfully."
+
+      # ── 4. (Optional) Install Chrome for Selenium ─────────
+      # Uncomment this block if your scraper.py uses Selenium:
+      #
+      # - name: Install Chrome (for Selenium)
+      #   uses: browser-actions/setup-chrome@v1
+      #   with:
+      #     chrome-version: stable
+      #
+      # - name: Install ChromeDriver
+      #   run: |
+      #     pip install webdriver-manager
+      #     python -c "from webdriver_manager.chrome import ChromeDriverManager; ChromeDriverManager().install()"
+
+      # ── 5. Backup existing JSON ────────────────────────────
+      - name: Backup existing scholarships.json
+        run: |
+          if [ -f "scholarships.json" ]; then
+            cp scholarships.json scholarships.json.bak
+            echo "Backup created: scholarships.json.bak"
+          else
+            echo "No existing scholarships.json found — first run."
+          fi
+
+      # ── 6. Run the scraper ─────────────────────────────────
+      - name: Run scholarship scraper
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: |
+          DEBUG_FLAG=""
+          if [ "${{ github.event.inputs.debug_mode }}" = "true" ]; then
+            DEBUG_FLAG="--debug"
+          fi
+
+          echo "Starting scraper at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          python scraper.py $DEBUG_FLAG
+
+          echo "Scraper finished. Exit code: $?"
+
+      # ── 7. Validate output ─────────────────────────────────
+      - name: Validate scholarships.json
+        run: |
+          python << 'EOF'
+          import json, sys
+          try:
+              with open("scholarships.json", encoding="utf-8") as f:
+                  data = json.load(f)
+              # Accept both array and {scholarships: [...]} format
+              if isinstance(data, list):
+                  count = len(data)
+              elif isinstance(data, dict):
+                  count = len(data.get("scholarships", []))
+              else:
+                  raise ValueError("Unexpected JSON structure")
+
+              if count == 0:
+                  print("ERROR: scholarships.json is empty — aborting commit.")
+                  sys.exit(1)
+
+              print(f"✓ scholarships.json is valid — {count} entries found.")
+          except json.JSONDecodeError as e:
+              print(f"ERROR: Invalid JSON — {e}")
+              sys.exit(1)
+          except FileNotFoundError:
+              print("ERROR: scholarships.json was not created by the scraper.")
+              sys.exit(1)
+          EOF
+
+      # ── 8. Restore backup if scraper failed ───────────────
+      - name: Restore backup on scraper failure
+        if: failure()
+        run: |
+          if [ -f "scholarships.json.bak" ]; then
+            cp scholarships.json.bak scholarships.json
+            echo "Restored previous scholarships.json from backup."
+          fi
+
+      # ── 9. Check for changes ───────────────────────────────
+      - name: Check for changes in scholarships.json
+        id: changes
+        run: |
+          git diff --quiet scholarships.json || echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "Git diff result: $(git diff --stat scholarships.json)"
+
+      # ── 10. Commit & push (only if changed) ───────────────
+      - name: Commit and push updated data
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          COUNT=$(python -c "
+          import json
+          data = json.load(open('scholarships.json'))
+          print(len(data) if isinstance(data, list) else len(data.get('scholarships', [])))
+          ")
+
+          DATE=$(date -u '+%d %b %Y %H:%M UTC')
+
+          git add scholarships.json
+          git commit -m "chore(data): update scholarships.json — ${COUNT} entries [${DATE}]
+
+          - Automated update via GitHub Actions
+          - Triggered by: ${{ github.event_name }}
+          - Runner: ubuntu-latest / Python 3.11
+          [skip ci]"
+
+          git push origin main
+          echo "✓ scholarships.json committed and pushed."
+
+      # ── 11. Skip message if no changes ────────────────────
+      - name: No changes detected
+        if: steps.changes.outputs.changed != 'true'
+        run: |
+          echo "scholarships.json is unchanged — no commit needed."
+
+      # ── 12. Clean up backup ────────────────────────────────
+      - name: Clean up backup file
+        if: always()
+        run: |
+          rm -f scholarships.json.bak
+          echo "Cleanup complete."
+
+      # ── 13. Upload scraper log as artifact ─────────────────
+      - name: Upload scraper log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scraper-log-${{ github.run_number }}
+          path: scraper.log
+          retention-days: 14
